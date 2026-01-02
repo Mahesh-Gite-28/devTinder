@@ -2,11 +2,23 @@ express=require("express");
 
 app=express();
 
-app.get("/user/:Id",(req,res)=>{
-    console.log(req.query);
-    console.log(req.params);
-    res.send("what is query parameters and route parameters??");
-})
+app.use("/user",
+       
+[
+(req,res,next)=>{
+    next();
+},
+(req,res,next)=>{
+    res.send("this is first response");
+    next();
+}],
+(req,res,next)=>{
+    console.log("i am third handler");
+    // next();
+    // res.send("i am third route handler");
+}
+
+)
 
 
 app.listen(7777,()=>{
