@@ -28,3 +28,5 @@ const userauth=(req,res,next)=>
 }
 
 module.exports={auth,userauth};
+
+

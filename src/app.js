@@ -3,22 +3,20 @@ const {auth,userauth} = require("./middlewares/auth");
 
 app=express();
 
-app.use("/admin",
-    auth
-)
-
-app.get("/user",userauth,(req,res)=>{
-    res.send("user data send");
+app.get("/admin/getUserData",(req,res)=>{
+    try{
+        throw new Error("error occured");
+    }catch(err)
+    {
+        res.status(500).send("something wrong");
+    }
 })
 
-app.get("/admin/getAllData",(req,res)=>{
-    //authentication
-    res.send("data is  sent");
-})
 
-app.get("/admin/deleteUser",(req,res)=>
-{
-    res.send("delete a user");
+app.use((err,req,res,next)=>{
+    if(err){
+        res.status(500).send("something went wrong");
+    }
 })
 
 app.listen(7777,()=>{
