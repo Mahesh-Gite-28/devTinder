@@ -82,6 +82,17 @@ app.get("/user/:id",async (req,res)=>
 
 app.patch("/user/:id", async (req, res) => {
   try {
+
+    const allowupdates=["gender","age","skills","about"];
+
+    const updates = Object.keys(req.body);
+
+    const checkvalidate=updates.every((k)=>allowupdates.includes(k));
+
+    if(!checkvalidate){
+        return res.send("cannot be updated");
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,   // 🔹 ID from URL
       req.body,        // 🔹 Only fields to update
