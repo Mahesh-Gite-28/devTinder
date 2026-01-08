@@ -11,7 +11,12 @@ const validateSignUpData=require("./utils/validation");
 const jwt=require("jsonwebtoken");
 
 const {connectDB}=require("./config/database");
-// const {auth,userauth} = require("./middlewares/auth");
+
+const userauth=require("./middlewares/auth");
+
+console.log(typeof userauth);
+
+console.log("i am mahesh");
 
 app=express();
 
@@ -29,54 +34,6 @@ app.delete("/delete",async (req,res)=>{
     {
         res.status(404).send("user not found");
     }
-})
-
-
-app.post("/login" ,async (req,res)=>{
-    try{
-
-        const {emailID,password}=req.body;
-
-        const user=await User.findOne({emailID:emailID});
-
-        if(!user){
-            throw new Error("Invalid Credentials");
-        }
-
-        const isPassvalid=await bcrypt.compare(password,user.password);
-
-        if(isPassvalid){
-
-            //create JWT token 
-            const token=
-
-            //insert token into cookie and send to client 
-
-            res.cookie("token","jfaklsjdfjaiosjfisodnfoisjd");
-
-            res.send("login successfull")
-        }
-        else{
-            res.send("password is not correct");
-        }
-
-    }catch(err)
-    {
-        res.status(400).send("Error:" + err.message);
-    }
-
-})
-
-
-app.get("/profile" ,(req,res)=>{
-
-    const {token}=req.cookies;
-
-    console.log(token);
-
-    //is token valid or not check 
-
-    res.send("profile of the user");
 })
 
 app.post("/signup",async (req,res)=>{
@@ -105,84 +62,56 @@ app.post("/signup",async (req,res)=>{
 
 })
 
-app.get("/user",async (req,res)=>{
-    
+app.post("/login" ,async (req,res)=>{
     try{
-        const user=await User.findOne(req.body);
-        if(user.length==0)
-        {
-             res.status(404).send("user not found");
+
+        const {emailID,password}=req.body;
+
+        const user=await User.findOne({emailID:emailID});
+
+        if(!user){
+            throw new Error("Invalid Credentials");
         }
-        else
-        {
-            res.send(user);
+
+        const isPassvalid=await bcrypt.compare(password,user.password);
+
+        if(isPassvalid){
+
+            //create JWT token 
+            const token=await jwt.sign({_id:user._id},"Devtinder$790",{expiresIn:'7d'});
+
+            //insert token into cookie and send to client 
+
+            res.cookie("token",token, {expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)});
+
+            res.send("login successfull")
         }
-    }
-    catch(err)
+        else{
+            res.send("password is not correct");
+        }
+
+    }catch(err)
     {
-        res.status(404).send("user not found");
+        res.status(400).send("Error:" + err.message);
     }
 
 })
 
-app.get("/feed",async (req,res)=>{
-    
-    try{
-        const user=await User.find();
-        res.send(user);
-    }
-    catch(err)
-    {
-        res.status(404).send("user not found");
-    }
+app.get("/profile",userauth,async (req,res)=>{
+
+    const user=req.user;
+
+    res.send(user);
 
 })
 
-app.get("/user/:id",async (req,res)=>
-{
-    try{
-        const user=await User.findById(req.params.id);
-        res.send(user);
-    }
-    catch(err)
-    {
-        res.status(404).send("user not found");
-    }
+
+app.post("/sendConnectionRequest",userauth,async (req,res)=>{
+
+    console.log("sending connection request");
+
+    res.send("connection request sent");
 })
-
-
-app.patch("/user/:id", async (req, res) => {
-  try {
-
-    const allowupdates=["gender","age","skills","about"];
-
-    const updates = Object.keys(req.body);
-
-    const checkvalidate=updates.every((k)=>allowupdates.includes(k));
-
-    if(!checkvalidate){
-        return res.send("cannot be updated");
-    }
-
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,   // 🔹 ID from URL
-      req.body,        // 🔹 Only fields to update
-      {
-        runValidators: true, // 🔥 schema validation ON
-        new: true            // 🔥 return updated document
-      }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json(updatedUser);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
 
 connectDB().then(()=>{
     console.log("Database connection estabilished....");
