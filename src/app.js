@@ -14,17 +14,13 @@ const {connectDB}=require("./config/database");
 
 const userauth=require("./middlewares/auth");
 
-console.log(typeof userauth);
-
-console.log("i am mahesh");
-
 app=express();
 
 app.use(cookieParser());//helps to read the cookie
 
 app.use(express.json());//inbuild middleware of express to read data in the body 
 
-app.delete("/delete",async (req,res)=>{
+app.delete("/delete",async(req,res)=>{
     try
     {
         await User.findByIdAndDelete(req.body);
@@ -36,31 +32,25 @@ app.delete("/delete",async (req,res)=>{
     }
 })
 
-app.post("/signup",async (req,res)=>{
+app.post("/signup", async (req, res) => {
   try {
-    //validation
-     validateSignUpData(req);
+    validateSignUpData(req);
 
-     //encryption
-    const {firstName,lastName,emailID,password}=req.body;
+    // create document instance
+    const user = new User(req.body);
 
-    const hashpass=await bcrypt.hash(password,10);//password encryption
+    // hash password using schema method
+    user.password = await user.gethash();
 
-    //create + save 
-    await User.create(
+    // save to DB
+    await user.save();
 
-        {firstName:firstName,
-         lastName:lastName,
-         emailID:emailID,
-         password:hashpass
-        }
-    );
     res.status(201).send("data saved successfully");
-} catch (err) {
-    res.status(400).send("Error Msg: "+err.message);
-}
+  } catch (err) {
+    res.status(400).send("Error Msg: " + err.message);
+  }
+});
 
-})
 
 app.post("/login" ,async (req,res)=>{
     try{
@@ -73,12 +63,12 @@ app.post("/login" ,async (req,res)=>{
             throw new Error("Invalid Credentials");
         }
 
-        const isPassvalid=await bcrypt.compare(password,user.password);
+        const isPassvalid=await user.comparePassword(password);
 
         if(isPassvalid){
 
             //create JWT token 
-            const token=await jwt.sign({_id:user._id},"Devtinder$790",{expiresIn:'7d'});
+            const token=await user.getjwt();
 
             //insert token into cookie and send to client 
 
