@@ -2,8 +2,9 @@ const express=require("express");
 
 const authRouter=express.Router();
 
-const validateSignUpData=require("../utils/validation");
+const {validateSignUpData}=require("../utils/validation");
 const User=require("../Models/User");
+
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -59,4 +60,15 @@ authRouter.post("/login" ,async (req,res)=>{
 
 })
 
-module.exports=authRouter;
+
+authRouter.post("/logout",(req,res)=>{
+    res.cookie
+    (
+        "token",null,{
+        expires:new Date(Date.now())
+                    }
+    )
+    res.send("logout successfull !!");
+});
+
+module.exports=authRouter; 

@@ -24,4 +24,42 @@ const validateSignUpData=(req)=>{
     }
 }
 
-module.exports=validateSignUpData;
+const validateProfileEdits = (reqBody) => {
+  const allowedEdits = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "skills",
+    "about",
+  ];
+
+  return Object.keys(reqBody).every((key) =>
+    allowedEdits.includes(key)
+  );
+};
+
+
+const validatePassword = (password) => {
+  if (!password) {
+    throw new Error("Password is required");
+  }
+
+  if (password.length < 6) {
+    throw new Error("Password must be at least 6 characters");
+  }
+
+  if (!validator.isStrongPassword(password)) {
+    throw new Error(
+      "Password must contain uppercase, lowercase, number & symbol"
+    );
+  }
+
+  return true;
+};
+
+module.exports = {
+  validateSignUpData,
+  validateProfileEdits,
+  validatePassword
+};

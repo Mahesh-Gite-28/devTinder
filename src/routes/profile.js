@@ -1,15 +1,76 @@
-const express=require("express");
+const express = require("express");
 
-const profileRouter=express.Router();
+const profileRouter = express.Router();
 
-const userauth=require("../middlewares/auth");
+const userauth = require("../middlewares/auth");
 
-profileRouter.get("/profile",userauth,async (req,res)=>{
+const { validateProfileEdits,validatePassword} = require("../utils/validation");
 
-    const user=req.user;
+profileRouter.get("/profile/view", userauth, async (req, res) => {
+  const user = req.user;
 
-    res.send(user);
+  res.send(user);
+});
 
-})
+profileRouter.patch("/profile/edit", userauth, async (req, res) => {
+  try {
+    if (!validateProfileEdits(req.body)) {
+      throw new Error("Edits not allowed");
+    }
 
-module.exports=profileRouter;
+    const loggedInUser = req.user;
+
+    Object.keys(req.body).forEach((field) => {
+      loggedInUser[field] = req.body[field];
+    });
+
+    await loggedInUser.save();
+
+    res.json({
+      message: `${loggedInUser.firstName}, your profile updated successfully`,
+      data: loggedInUser,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+profileRouter.patch("/profile/password", userauth, async (req, res) => {
+  try {
+
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      throw new Error("Old password and new password required");
+    }
+
+    const user = req.user;
+
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      throw new Error("Old password is incorrect");
+    }
+
+    if(!validatePassword(newPassword))
+        {
+            throw new Error("please enter strong password");
+        } 
+
+    user.password = newPassword;
+
+    user.password = await user.gethash();
+
+    await user.save();
+
+    res.json({
+      message: "Password changed successfully."
+    });
+
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+module.exports = profileRouter;
