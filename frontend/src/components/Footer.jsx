@@ -2,66 +2,61 @@ import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-gray-300 px-10 py-14">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+    <footer className="footer bg-neutral text-neutral-content px-10 py-14">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-10">
 
-        <div>
-          <h2 className="text-2xl font-bold text-indigo-500 mb-4">
+        {/* Left Section */}
+        <aside>
+          <h2 className="text-2xl font-bold text-primary mb-4">
             DevTinder
           </h2>
 
-          <p className="text-gray-400 max-w-md leading-relaxed">
+          <p className="max-w-md leading-relaxed text-neutral-content/80">
             DevTinder is a platform built for developers to connect, collaborate,
             and build side projects together. Whether you're looking for a
             co-founder, mentor, or teammate — this is your space.
           </p>
 
-          <p className="text-sm text-gray-500 mt-6">
-            © 2026 DevTinder.
+          <p className="text-sm text-neutral-content/60 mt-6">
+            © 2026 DevTinder. All rights reserved.
           </p>
-        </div>
+        </aside>
 
         {/* Right Section */}
-        <div className="md:text-right">
-          <h3 className="text-xl font-semibold text-indigo-500 mb-4">
+        <nav className="md:text-right">
+          <h3 className="text-xl font-semibold text-primary mb-4">
             Connect With Us
           </h3>
 
-          <div className="space-y-3 text-gray-400">
+          <div className="space-y-3">
 
-            <p className="flex md:justify-end items-center gap-2">
+            <a
+              href="mailto:maheshgite2811@gmail.com"
+              className="flex md:justify-end items-center gap-2 link link-hover text-info"
+            >
               <FaEnvelope />
-              <a
-                href="mailto:maheshgite2811@gmail.com"
-                className="text-blue-400 hover:underline"
-              >
-                maheshgite2811@gmail.com
-              </a>
-            </p>
+              maheshgite2811@gmail.com
+            </a>
 
-            <p className="flex md:justify-end items-center gap-2">
+            <a
+              href="https://github.com/Mahesh-Gite-28"
+              target="_blank"
+              rel="noreferrer"
+              className="flex md:justify-end items-center gap-2 link link-hover text-info"
+            >
               <FaGithub />
-              <a
-                href="https://github.com/Mahesh-Gite-28"
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-400 hover:underline"
-              >
-                GitHub
-              </a>
-            </p>
+              GitHub
+            </a>
 
-            <p className="flex md:justify-end items-center gap-2">
+            <a
+              href="https://www.linkedin.com/in/mahesh-gite"
+              target="_blank"
+              rel="noreferrer"
+              className="flex md:justify-end items-center gap-2 link link-hover text-info"
+            >
               <FaLinkedin />
-              <a
-                href="https://www.linkedin.com/in/mahesh-gite"
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-400 hover:underline"
-              >
-                LinkedIn
-              </a>
-            </p>
+              LinkedIn
+            </a>
           </div>
 
           {/* Social Icons */}
@@ -70,19 +65,21 @@ const Footer = () => {
               href="https://github.com/Mahesh-Gite-28"
               target="_blank"
               rel="noreferrer"
+              className="hover:text-white transition"
             >
-              <FaGithub className="hover:text-white transition" />
+              <FaGithub />
             </a>
 
             <a
               href="https://www.linkedin.com/in/mahesh-gite"
               target="_blank"
               rel="noreferrer"
+              className="hover:text-primary transition"
             >
-              <FaLinkedin className="hover:text-blue-500 transition" />
+              <FaLinkedin />
             </a>
           </div>
-        </div>
+        </nav>
 
       </div>
     </footer>

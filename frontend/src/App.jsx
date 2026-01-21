@@ -1,6 +1,6 @@
-import Navbar from "./components/navbar"
+
 import {Routes,Route} from "react-router-dom"
-import Layout from "./components/layout"
+import Layout from "./components/Layout"
 import Login from "./components/Login"
 import Test from "./components/Test"
 

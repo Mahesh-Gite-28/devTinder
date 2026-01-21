@@ -1,19 +1,31 @@
 express=require("express");
 
+const cors = require("cors");
+
 const cookieParser=require("cookie-parser");
 
 const {connectDB}=require("./config/database");
 
+
 app=express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());//helps to read the cookie
 
 app.use(express.json());//inbuild middleware of express to read data in the body 
 
+
 const authRouter=require("./routes/auth");
 const profileRouter=require("./routes/profile");
 const requestRouter=require("./routes/request");
 const userRouter=require("./routes/user");
+
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
