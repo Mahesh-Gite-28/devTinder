@@ -1,9 +1,11 @@
-
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
+  const user = useSelector((store) => store.user);
+
   return (
     <div className="navbar bg-base-100 shadow-md px-6">
-      
+
       {/* Left - Logo */}
       <div className="flex-1">
         <a className="text-2xl font-bold tracking-wide">
@@ -16,19 +18,33 @@ const Navbar = () => {
       {/* Right - Profile */}
       <div className="flex items-center gap-4">
         <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle avatar hover:scale-105 transition-transform"
-          >
-            <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
-              <img
-                alt="profile"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              />
+
+          <div className="flex items-center gap-3">
+
+            {user && (
+              <p className="text-sm font-medium whitespace-nowrap">
+                👋 Welcome, {user.firstName}
+              </p>
+            )}
+
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn btn-ghost btn-circle avatar hover:scale-105 transition-transform"
+            >
+              {user && (
+                <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                  <img
+                    alt="profile"
+                    src="https://img.freepik.com/free-vector/user-blue-gradient_78370-4692.jpg"
+                  />
+                </div>
+              )}
             </div>
+
           </div>
 
+          {/* Dropdown Menu */}
           <ul
             tabIndex={0}
             className="menu menu-sm dropdown-content mt-3 w-52 rounded-xl bg-base-100 p-2 shadow-lg"
@@ -46,6 +62,7 @@ const Navbar = () => {
               <a className="text-error font-medium">Logout</a>
             </li>
           </ul>
+
         </div>
       </div>
     </div>
