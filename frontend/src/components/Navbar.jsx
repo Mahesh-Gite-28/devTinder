@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Navbar = () => {
@@ -8,11 +9,11 @@ const Navbar = () => {
 
       {/* Left - Logo */}
       <div className="flex-1">
-        <a className="text-2xl font-bold tracking-wide">
+        <Link className="text-2xl font-bold tracking-wide" to={"/feed"}>
           <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             DevTinder
           </span>
-        </a>
+        </Link>
       </div>
 
       {/* Right - Profile */}
@@ -50,10 +51,10 @@ const Navbar = () => {
             className="menu menu-sm dropdown-content mt-3 w-52 rounded-xl bg-base-100 p-2 shadow-lg"
           >
             <li>
-              <a className="justify-between">
+              <Link className="justify-between" to={"/profile"}>
                 Profile
                 <span className="badge badge-primary badge-sm">New</span>
-              </a>
+              </Link>
             </li>
             <li>
               <a>Settings</a>

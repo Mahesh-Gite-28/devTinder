@@ -4,6 +4,7 @@ import Layout from "./components/Layout"
 import Login from "./components/Login"
 import Test from "./components/Test"
 import Feed from "./components/Feed"
+import Profile from "./components/Profile"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/login" element={<Login/>}/>
       <Route path="/test" element={<Test/>}/>
       <Route path="/feed" element={<Feed/>}/>
+      <Route path="/profile" element={<Profile/>}/>
       </Route>
     </Routes>
 
