@@ -1,4 +1,5 @@
 const UserCard = ({ data }) => {
+  
   const { firstName, lastName, photoUrl, about, skills, gender, age } = data;
 
   return (
@@ -18,10 +19,10 @@ const UserCard = ({ data }) => {
             <h3>About</h3>
             <p>{about}</p>
           </div>
-          <div>
-            <h3>Skills</h3>
-            
-          </div>
+          {/* {(skills.length>0||skills) && <div>
+            <h1>Skills</h1>
+            {skills.map((skill)=><p>{skill}</p>)}
+          </div>} */}
           <div className="card-actions justify-center my-4">
             <button className="btn btn-primary">Ignore</button>
             <button className="btn btn-secondary">Interested</button>

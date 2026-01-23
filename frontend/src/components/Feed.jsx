@@ -11,33 +11,37 @@ const Feed = () => {
   const feed = useSelector((store) => store.feed);
 
   const getfeed = async () => {
-    try {
 
+    try {
       const userfeed = await axios.get(
         BASE_URL + "/feed",
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       dispatch(addfeed(userfeed.data));
 
     } catch (err) {
-
-      console.log(err);//show pop up please login
+      console.log(err);
     }
   };
 
   useEffect(() => {
-    if(!feed)
-    {
+    if (feed.length === 0) {
       getfeed();
-    }  
-  }, []);
+    }
+  }, [feed.length]);
 
-  return <div>
-    
-    <UserCard data={feed[0]}/>
-    
-    </div>;
+  if (feed.length === 0) {
+    return <p>Loading feed...</p>;
+  }
+
+  return (
+    <div>
+      <UserCard data={feed[0]} />
+    </div>
+  );
+
 };
+
 
 export default Feed;

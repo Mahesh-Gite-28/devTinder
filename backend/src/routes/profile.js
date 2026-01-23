@@ -31,8 +31,13 @@ profileRouter.patch("/profile/edit", userauth, async (req, res) => {
       data: loggedInUser,
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+  console.log("EDIT PROFILE ERROR:", err);
+
+  res.status(400).json({
+    error: err.message || "Profile update failed",
+  });
+}
+
 });
 
 
