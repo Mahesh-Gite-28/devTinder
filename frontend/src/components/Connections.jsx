@@ -27,25 +27,25 @@ const Connections = () => {
 
   if (!userconnection) return null;
 
-  if (userconnection.length === 0) {
-    return (
-      <div className="p-6 text-center text-gray-500">
-        No connections yet
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-base-200 p-6">
       {/* Heading */}
-      <h2 className="text-2xl font-semibold mb-6">Connections</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        Connections
+      </h2>
 
-      {/* Cards */}
-      <div className="space-y-4">
+      {/* Wrapper to keep cards in middle */}
+      <div className="max-w-3xl mx-auto flex flex-col gap-4">
+        {userconnection.length === 0 && (
+          <p className="text-center text-gray-500">
+            No connections yet
+          </p>
+        )}
+
         {userconnection.map((connection) => (
           <div
             key={connection._id}
-            className="bg-white rounded-xl shadow-md p-4 flex gap-4 text-gray-900"
+            className="card bg-base-100 shadow-md p-4 flex flex-row items-center gap-4"
           >
             {/* Profile Image */}
             <img
@@ -56,7 +56,7 @@ const Connections = () => {
 
             {/* Info */}
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold">
                 {connection.firstName} {connection.lastName}
               </h3>
 
@@ -70,7 +70,7 @@ const Connections = () => {
                   {connection.skills.map((skill, idx) => (
                     <span
                       key={idx}
-                      className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+                      className="badge badge-outline badge-sm"
                     >
                       {skill}
                     </span>
@@ -80,7 +80,7 @@ const Connections = () => {
 
               {/* About */}
               {connection.about && (
-                <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                <p className="text-sm mt-2 text-gray-600 line-clamp-2">
                   {connection.about}
                 </p>
               )}
