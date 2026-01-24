@@ -15,13 +15,17 @@ const Editprofile = ({ user }) => {
   const [gender, setGender] = useState(user.gender);
   const [error, setError] = useState("");
   const [toast, setToast] = useState(false);
+  const [skills, setSkills] = useState(user.skills || []);
+  const [skillsInput, setSkillsInput] = useState(
+    (user.skills || []).join(", "),
+  );
 
   const saveProfile = async () => {
     setError(""); //clear the error before save
     try {
       const res = await axios.patch(
         BASE_URL + "/profile/edit",
-        { firstName, lastName, photoUrl, age, about, gender },
+        { firstName, lastName, photoUrl, age, about, gender, skills },
         { withCredentials: true },
       );
 
@@ -30,8 +34,7 @@ const Editprofile = ({ user }) => {
 
       setInterval(() => {
         setToast(false);
-      }, 2000);
-
+      }, 3000);
     } catch (err) {
       const backendError =
         err.response?.data?.error || "Profile update failed. Please try again.";
@@ -97,36 +100,69 @@ const Editprofile = ({ user }) => {
                 onChange={(e) => setAge(Number(e.target.value))}
               />
             </div>
+
             <div className="form-control mb-4">
               <label className="label">
                 <span className="label-text text-sm">Gender</span>
               </label>
+
+              <select
+                value={gender}
+                className="select select-bordered bg-base-300"
+                onChange={(e) => setGender(e.target.value)}
+              >
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="others">Others</option>
+              </select>
+            </div>
+
+            <div className="form-control mb-4">
+              <label className="label">
+                <span className="label-text text-sm">Skills</span>
+              </label>
+
               <input
                 type="text"
-                value={gender}
-                className="input input-borde red bg-base-300"
-                onChange={(e) => setGender(e.target.value)}
+                value={skillsInput}
+                className="input input-bordered bg-base-300"
+                placeholder="e.g. React, Node, MongoDB"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSkillsInput(value);
+
+                  const skillsArray = value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean);
+
+                  setSkills(skillsArray);
+                }}
               />
             </div>
+
             <div className="form-control mb-4">
               <label className="label">
                 <span className="label-text text-sm">About</span>
               </label>
-              <input
-                type="text"
+              <textarea
                 value={about}
-                className="input input-bordered bg-base-300"
+                rows={4}
+                className="textarea textarea-bordered bg-base-300 resize-none"
+                placeholder="Write something about yourself..."
                 onChange={(e) => setAbout(e.target.value)}
               />
             </div>
 
             <p className="text-red-500">{error}</p>
 
-            {toast&&<div className="toast toast-top toast-center">
-              <div className="alert alert-success">
-                <span>Profile saved successfully.</span>
+            {toast && (
+              <div className="toast toast-top toast-center">
+                <div className="alert alert-success">
+                  <span>Profile saved successfully.</span>
+                </div>
               </div>
-            </div>}
+            )}
 
             <button
               className="btn btn-primary w-full mt-5 my-2"
@@ -137,7 +173,9 @@ const Editprofile = ({ user }) => {
           </div>
         </div>
       </div>
-      <UserCard data={{ firstName, lastName, photoUrl, age, about, gender }} />
+      <UserCard
+        data={{ firstName, lastName, photoUrl, age, about, gender, skills }}
+      />
     </div>
   );
 };
