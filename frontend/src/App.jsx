@@ -1,32 +1,35 @@
-
-import {Routes,Route} from "react-router-dom"
-import Layout from "./components/Layout"
-import Login from "./components/Login"
-import Test from "./components/Test"
-import Feed from "./components/Feed"
-import Profile from "./components/Profile"
-import Connections from "./components/Connections"
-import Request from "./components/Request"
-
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Login from "./components/Login";
+import Feed from "./components/Feed";
+import Profile from "./components/Profile";
+import Connections from "./components/Connections";
+import Request from "./components/Request";
+import { Toaster } from "react-hot-toast";  
+import Error from "./components/Error"; 
+import Home from "./components/Home";   
 function App() {
   return (
-    <div>
-  
-    <Routes>
-      <Route path="/" element={<Layout/>}>
-      <Route path="/login" element={<Login/>}/>
-      <Route path="/test" element={<Test/>}/>
-      <Route path="/feed" element={<Feed/>}/>
-      <Route path="/profile" element={<Profile/>}/>
-      <Route path="/connections" element={<Connections/>}/>
-      <Route path="/requests" element={<Request/>}/>
-      </Route>
-    </Routes>
+    <>
+      <Toaster position="top-center" reverseOrder={false} />  
 
+      <Routes>
+        <Route path="/" element={<Layout />}>
 
-    </div>
-    
-  )
+        
+          <Route index element={<Home />} />
+
+          <Route path="login" element={<Login />} />
+          <Route path="feed" element={<Feed />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="connections" element={<Connections />} />
+          <Route path="requests" element={<Request />} />
+
+          <Route path="*" element={<Error />} />
+        </Route>
+      </Routes>
+    </>
+  );
 }
 
-export default App
+export default App;

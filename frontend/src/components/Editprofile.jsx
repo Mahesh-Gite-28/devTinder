@@ -1,209 +1,256 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import UserCard from "./UserCard";
+import toast from "react-hot-toast";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 
-const Editprofile = ({ user }) => {
+const EditProfile = ({ user }) => {
+  const {
+    firstName: fName,
+    lastName: lName,
+    age: userAge,
+    about: userAbout,
+    photoUrl: userPhoto,
+    skills: userSkills,
+    gender: userGender,
+  } = user;
+
+  const [firstName, setFirstName] = useState(fName || "");
+  const [lastName, setLastName] = useState(lName || "");
+  const [age, setAge] = useState(userAge || "");
+  const [about, setAbout] = useState(userAbout || "");
+  const [photoUrl, setPhotoUrl] = useState(userPhoto || "");
+  const [gender, setGender] = useState(userGender || "");
+  const [skills, setSkills] = useState(userSkills || []);
+  const [skillInput, setSkillInput] = useState("");
+
   const dispatch = useDispatch();
 
-  // 🔹 SAFE DEFAULTS
-  const [firstName, setfirstName] = useState(user?.firstName || "");
-  const [lastName, setlastName] = useState(user?.lastName || "");
-  const [photoUrl, setphotoUrl] = useState(user?.photoUrl || "");
-  const [age, setAge] = useState(user?.age || "");
-  const [about, setAbout] = useState(user?.about || "");
-  const [gender, setGender] = useState(user?.gender || ""); // 👈 empty default
-  const [skills, setSkills] = useState(user?.skills || []);
-  const [skillsInput, setSkillsInput] = useState(
-    (user?.skills || []).join(", ")
-  );
-
-  const [error, setError] = useState("");
-  const [toast, setToast] = useState(false);
-
-  // 🔹 REDUX USER CHANGE PE LOCAL STATE SYNC
-  useEffect(() => {
-    if (user) {
-      setfirstName(user.firstName || "");
-      setlastName(user.lastName || "");
-      setphotoUrl(user.photoUrl || "");
-      setAge(user.age || "");
-      setAbout(user.about || "");
-      setGender(user.gender || ""); // 👈 empty if not present
-      setSkills(user.skills || []);
-      setSkillsInput((user.skills || []).join(", "));
-    }
-  }, [user]);
-
-  const saveProfile = async () => {
-    setError("");
-
-    // 🔹 GENDER VALIDATION
-    if (!gender) {
-      setError("Please select your gender.");
-      return;
-    }
-
-    try {
-      const res = await axios.patch(
-        BASE_URL + "/profile/edit",
-        { firstName, lastName, photoUrl, age, about, gender, skills },
-        { withCredentials: true }
-      );
-
-      dispatch(addUser(res?.data?.data));
-      setToast(true);
-
-      setTimeout(() => {
-        setToast(false);
-      }, 3000);
-    } catch (err) {
-      const backendError =
-        err.response?.data?.error || "Profile update failed. Please try again.";
-      setError(backendError);
-    }
+  const addSkill = () => {
+    const value = skillInput.trim();
+    if (!value) return;
+    if (skills.includes(value)) return;
+    setSkills((prev) => [...prev, value]);
+    setSkillInput("");
   };
 
-  return (
-    <div className="flex justify-center my-10">
-      <div className="mx-15">
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-          <div className="card w-[380px] bg-base-200 shadow-xl p-6">
-            <h2 className="text-3xl font-bold text-center mb-6">
-              <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-                Edit Profile
-              </span>
-            </h2>
+  const removeSkill = (indexToRemove) => {
+    setSkills((prev) =>
+      prev.filter((_, index) => index !== indexToRemove)
+    );
+  };
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text text-sm">First Name</span>
+  const handleProfileSave = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await axios.patch(
+      `${BASE_URL}/profile/edit`,
+      { firstName, lastName, age, photoUrl, about, gender, skills },
+      { withCredentials: true }
+    );
+
+    dispatch(addUser(res?.data?.after));
+
+    toast.success(res?.data?.message || "Profile updated");
+  } catch (err) {
+    toast.error(
+      err?.response?.data?.errors ||
+        err?.data?.message ||
+        "Something went wrong",
+    );
+  }
+};
+
+
+  return (
+    <div className="min-h-[calc(100vh-80px)] px-10 pt-18">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-10">
+
+        {/* LEFT FORM */}
+        <form
+          onSubmit={handleProfileSave}
+          className="card bg-base-200 shadow-lg p-6 w-full md:w-1/2 space-y-5"
+        >
+          <h2 className="text-2xl font-semibold text-success">
+            Edit Profile
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="label text-sm text-gray-400">
+                First Name
               </label>
               <input
                 type="text"
                 value={firstName}
-                className="input input-bordered bg-base-300"
-                onChange={(e) => setfirstName(e.target.value)}
+                onChange={(e) =>
+                  setFirstName(e.target.value)
+                }
+                className="input input-bordered w-full"
               />
             </div>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text text-sm">Last Name</span>
+            <div>
+              <label className="label text-sm text-gray-400">
+                Last Name
               </label>
               <input
                 type="text"
                 value={lastName}
-                className="input input-bordered bg-base-300"
-                onChange={(e) => setlastName(e.target.value)}
+                onChange={(e) =>
+                  setLastName(e.target.value)
+                }
+                className="input input-bordered w-full"
               />
             </div>
+          </div>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text text-sm">Photo URL</span>
-              </label>
-              <input
-                type="text"
-                value={photoUrl}
-                className="input input-bordered bg-base-300"
-                onChange={(e) => setphotoUrl(e.target.value)}
-              />
-            </div>
-
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text text-sm">Age</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="label text-sm text-gray-400">
+                Age
               </label>
               <input
                 type="number"
+                min={12}
                 value={age}
-                className="input input-bordered bg-base-300"
-                onChange={(e) => setAge(Number(e.target.value))}
+                onChange={(e) =>
+                  setAge(e.target.value)
+                }
+                className="input input-bordered w-full"
               />
             </div>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text text-sm">Gender</span>
+            <div>
+              <label className="label text-sm text-gray-400">
+                Gender
               </label>
               <select
                 value={gender}
-                className="select select-bordered bg-base-300"
-                onChange={(e) => setGender(e.target.value)}
+                onChange={(e) =>
+                  setGender(e.target.value)
+                }
+                className="select select-bordered w-full"
               >
-                <option value="" disabled>
-                  Select Gender
+                <option value="">
+                  Select gender
                 </option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="others">Others</option>
+                <option value="male">
+                  Male
+                </option>
+                <option value="female">
+                  Female
+                </option>
+                <option value="other">
+                  Other
+                </option>
               </select>
             </div>
+          </div>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text text-sm">Skills</span>
-              </label>
+          <div>
+            <label className="label text-sm text-gray-400">
+              Profile Photo URL
+            </label>
+            <input
+              type="url"
+              value={photoUrl}
+              onChange={(e) =>
+                setPhotoUrl(e.target.value)
+              }
+              className="input input-bordered w-full"
+            />
+          </div>
+
+          <div>
+            <label className="label text-sm text-gray-400">
+              About
+            </label>
+            <textarea
+              rows="3"
+              value={about}
+              onChange={(e) =>
+                setAbout(e.target.value)
+              }
+              className="textarea textarea-bordered w-full resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="label text-sm text-gray-400">
+              Skills
+            </label>
+
+            <div className="flex gap-2">
               <input
                 type="text"
-                value={skillsInput}
-                className="input input-bordered bg-base-300"
-                placeholder="e.g. React, Node, MongoDB"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSkillsInput(value);
-
-                  const skillsArray = value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean);
-
-                  setSkills(skillsArray);
-                }}
+                value={skillInput}
+                onChange={(e) =>
+                  setSkillInput(e.target.value)
+                }
+                className="input input-bordered w-full"
+                placeholder="Add a skill"
               />
+
+              <button
+                type="button"
+                onClick={addSkill}
+                className="btn btn-success"
+              >
+                Add
+              </button>
             </div>
 
-            <div className="form-control mb-4">
-              <label className="label">
-                <span className="label-text text-sm">About</span>
-              </label>
-              <textarea
-                value={about}
-                rows={4}
-                className="textarea textarea-bordered bg-base-300 resize-none"
-                placeholder="Write something about yourself..."
-                onChange={(e) => setAbout(e.target.value)}
-              />
+            <div className="flex flex-wrap gap-2 mt-3">
+              {skills.map((skill, index) => (
+                <span
+                  key={skill}
+                  className="badge badge-outline flex items-center gap-2"
+                >
+                  {skill}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removeSkill(index)
+                    }
+                    className="text-error font-bold"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
             </div>
+          </div>
 
-            <p className="text-red-500">{error}</p>
-
-            {toast && (
-              <div className="toast toast-top toast-center">
-                <div className="alert alert-success">
-                  <span>Profile saved successfully.</span>
-                </div>
-              </div>
-            )}
-
+          <div className="flex justify-end pt-4">
             <button
-              className="btn btn-primary w-full mt-5 my-2"
-              onClick={saveProfile}
+              type="submit"
+              className="btn btn-success"
             >
-              Submit
+              Save Profile
             </button>
           </div>
+        </form>
+
+        <div className="ml-35">
+          <UserCard
+            data={{
+              firstName,
+              lastName,
+              age,
+              about,
+              photoUrl,
+              gender,
+              skills,
+            }}
+          />
         </div>
       </div>
-
-      <UserCard
-        data={{ firstName, lastName, photoUrl, age, about, gender, skills }}
-      />
     </div>
   );
 };
 
-export default Editprofile;
+export default EditProfile;

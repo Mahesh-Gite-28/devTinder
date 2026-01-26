@@ -50,7 +50,7 @@ const Feed = () => {
   }
 
   return (
-    <div className="flex justify-center mt-6">
+    <div className="flex justify-center pt-15 pb-20">
       <UserCard data={feed[0]} />
     </div>
   );

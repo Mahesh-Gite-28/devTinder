@@ -2,85 +2,85 @@ import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="footer bg-neutral text-neutral-content px-10 py-14">
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-10">
+    <footer className="bg-black border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-6 py-12">
 
-        {/* Left Section */}
-        <aside>
-          <h2 className="text-2xl font-bold text-primary mb-4">
-            DevTinder
-          </h2>
+        {/* Grid Wrapper */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-start text-center md:text-left">
 
-          <p className="max-w-md leading-relaxed text-neutral-content/80">
-            DevTinder is a platform built for developers to connect, collaborate,
-            and build side projects together. Whether you're looking for a
-            co-founder, mentor, or teammate — this is your space.
-          </p>
+          {/* Left Section */}
+          <div className="flex flex-col items-center md:items-start">
+            <h2 className="text-2xl font-bold tracking-tight text-white">
+              Dev<span className="text-emerald-400">Tinder</span>
+            </h2>
 
-          <p className="text-sm text-neutral-content/60 mt-6">
-            © 2026 DevTinder. All rights reserved.
-          </p>
-        </aside>
-
-        {/* Right Section */}
-        <nav className="md:text-right">
-          <h3 className="text-xl font-semibold text-primary mb-4">
-            Connect With Us
-          </h3>
-
-          <div className="space-y-3">
-
-            <a
-              href="mailto:maheshgite2811@gmail.com"
-              className="flex md:justify-end items-center gap-2 link link-hover text-info"
-            >
-              <FaEnvelope />
-              maheshgite2811@gmail.com
-            </a>
-
-            <a
-              href="https://github.com/Mahesh-Gite-28"
-              target="_blank"
-              rel="noreferrer"
-              className="flex md:justify-end items-center gap-2 link link-hover text-info"
-            >
-              <FaGithub />
-              GitHub
-            </a>
-
-            <a
-              href="https://www.linkedin.com/in/mahesh-gite"
-              target="_blank"
-              rel="noreferrer"
-              className="flex md:justify-end items-center gap-2 link link-hover text-info"
-            >
-              <FaLinkedin />
-              LinkedIn
-            </a>
+            <p className="mt-3 text-sm text-slate-400 max-w-sm leading-relaxed">
+              DevTinder is a platform built for developers to connect,
+              collaborate, and build side projects together. Whether you're
+              looking for a co-founder, mentor, or teammate — this is your space.
+            </p>
           </div>
 
-          {/* Social Icons */}
-          <div className="flex md:justify-end gap-5 mt-6 text-2xl">
-            <a
-              href="https://github.com/Mahesh-Gite-28"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition"
-            >
-              <FaGithub />
-            </a>
+          {/* Middle Section - Contact */}
+          <div className="flex flex-col items-center md:items-start">
+            <h3 className="font-semibold text-lg mb-6 text-white">
+              Contact
+            </h3>
 
-            <a
-              href="https://www.linkedin.com/in/mahesh-gite"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-primary transition"
-            >
-              <FaLinkedin />
-            </a>
+            <ul className="space-y-3 text-sm text-slate-400">
+              <li className="flex items-center gap-3">
+                <FaEnvelope className="text-emerald-400" />
+                <a
+                  href="mailto:maheshgite2811@gmail.com"
+                  className="hover:underline hover:text-white"
+                >
+                  maheshgite2811@gmail.com
+                </a>
+              </li>
+            </ul>
           </div>
-        </nav>
 
+          {/* Right Section - Social */}
+          <div className="flex flex-col items-center md:items-start">
+            <h3 className="font-semibold text-lg mb-3 text-white">
+              Connect
+            </h3>
+
+            <div className="flex gap-4">
+              <a
+                href="https://github.com/Mahesh-Gite-28"
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-ghost btn-circle hover:bg-emerald-500 hover:text-black transition"
+              >
+                <FaGithub size={20} />
+              </a>
+
+              <a
+                href="https://www.linkedin.com/in/mahesh-gite"
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-ghost btn-circle hover:bg-emerald-500 hover:text-black transition"
+              >
+                <FaLinkedin size={20} />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="divider my-8 border-slate-800"></div>
+
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500 text-center md:text-left">
+          <p>© {new Date().getFullYear()} DevTinder. All rights reserved.</p>
+
+          <p>
+            Built by{" "}
+            <span className="font-medium text-white">
+              Mahesh Gite
+            </span>
+          </p>
+        </div>
       </div>
     </footer>
   );

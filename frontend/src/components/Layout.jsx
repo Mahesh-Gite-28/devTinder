@@ -1,7 +1,7 @@
 // import { Outlet } from "react-router-dom"
 import { Outlet } from "react-router-dom";
-import Navbar from "./navbar";
-import Footer from "./footer";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 import axios from "axios";
 import { useEffect } from "react";
 import { BASE_URL } from "../utils/constants";
@@ -25,14 +25,7 @@ const Layout = () => {
       dispatch(addUser(user.data));
     } 
     catch (err) {
-
-      if(err.status==401)
-      {
-        navigate("/login");
-      }
-
-      // console.log(err);//show popup or something //means token is invalid or not present
-      
+      console.log(err);
     }
   };
 
@@ -56,6 +49,3 @@ const Layout = () => {
 
 export default Layout;
 
-//when we refresh website -->redux store loose data
-//but we still have cookie in the browser
-//dont have to login again by using cookie 

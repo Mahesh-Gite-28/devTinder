@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BASE_URL } from "../utils/constants";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,6 +8,8 @@ const Connections = () => {
   const dispatch = useDispatch();
   const userconnection = useSelector((store) => store.connections);
 
+  const [loading, setLoading] = useState(true);
+
   const myconnections = async () => {
     try {
       const getconnections = await axios.get(
@@ -15,9 +17,11 @@ const Connections = () => {
         { withCredentials: true }
       );
 
-      dispatch(addconnections(getconnections?.data?.data));
+      dispatch(addconnections(getconnections?.data?.data || []));
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -25,17 +29,22 @@ const Connections = () => {
     myconnections();
   }, []);
 
-  if (!userconnection) return null;
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] flex justify-center items-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-base-200 p-6">
-      {/* Heading */}
+    <div className="min-h-[calc(100vh-80px)] bg-base-200 p-6">
       <h2 className="text-2xl font-bold mb-6 text-center">
         Connections
       </h2>
 
-      {/* Wrapper to keep cards in middle */}
       <div className="max-w-3xl mx-auto flex flex-col gap-4">
+
         {userconnection.length === 0 && (
           <p className="text-center text-gray-500">
             No connections yet
@@ -47,14 +56,12 @@ const Connections = () => {
             key={connection._id}
             className="card bg-base-100 shadow-md p-4 flex flex-row items-center gap-4"
           >
-            {/* Profile Image */}
             <img
               src={connection.photoUrl}
               alt="profile"
               className="w-16 h-16 rounded-full object-cover border"
             />
 
-            {/* Info */}
             <div className="flex-1">
               <h3 className="text-lg font-semibold">
                 {connection.firstName} {connection.lastName}
@@ -64,7 +71,6 @@ const Connections = () => {
                 {connection.age} yrs • {connection.gender}
               </p>
 
-              {/* Skills */}
               {connection.skills?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {connection.skills.map((skill, idx) => (
@@ -78,7 +84,6 @@ const Connections = () => {
                 </div>
               )}
 
-              {/* About */}
               {connection.about && (
                 <p className="text-sm mt-2 text-gray-600 line-clamp-2">
                   {connection.about}
@@ -87,6 +92,7 @@ const Connections = () => {
             </div>
           </div>
         ))}
+
       </div>
     </div>
   );

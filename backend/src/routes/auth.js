@@ -11,14 +11,11 @@ authRouter.post("/signup", async (req, res) => {
 
     const user = new User(req.body);
 
-  
     user.password = await user.gethash();
 
-  
     await user.save();
 
     const token = await user.getjwt();
-
 
     res.cookie("token", token, {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -27,9 +24,24 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     res.status(201).send(user);
-    
+
   } catch (err) {
-    res.status(400).send("Error Msg: " + err.message);
+
+    if (err.code === 11000) {
+      return res.status(400).json({
+        errors: "This email is already registered",
+      });
+    }
+
+    if (err.message) {
+      return res.status(400).json({
+        errors: err.message,
+      });
+    }
+
+    res.status(500).json({
+      errors: "Signup failed",
+    });
   }
 });
 
@@ -41,25 +53,35 @@ authRouter.post("/login", async (req, res) => {
     const user = await User.findOne({ emailID });
 
     if (!user) {
-      return res.status(401).send("Invalid email or password");
+      return res.status(401).json({
+        errors: "Invalid email or password",
+      });
     }
 
     const isPassvalid = await user.comparePassword(password);
 
     if (!isPassvalid) {
-      return res.status(401).send("Invalid email or password"); 
+      return res.status(401).json({
+        errors: "Invalid email or password",
+      });
     }
 
     const token = await user.getjwt();
 
     res.cookie("token", token, {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      sameSite: "lax",
     });
 
     res.status(200).send(user);
 
   } catch (err) {
-    res.status(500).send("Error: " + err.message);
+
+    // 🔥 CLEAN ERROR HANDLING (NO LOGIC CHANGE)
+    res.status(500).json({
+      errors: "Login failed. Please try again.",
+    });
   }
 });
 
@@ -67,8 +89,11 @@ authRouter.post("/login", async (req, res) => {
 authRouter.post("/logout", (req, res) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
+    httpOnly: true,
+    sameSite: "lax",
   });
-  res.send("logout successfull !!");
+
+  res.send("Logout successful");
 });
 
 module.exports = authRouter;
