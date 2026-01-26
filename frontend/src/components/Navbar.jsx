@@ -75,6 +75,9 @@ const Navbar = () => {
             tabIndex={0}
             className="menu menu-sm dropdown-content mt-3 w-52 rounded-xl bg-base-100 p-2 shadow-lg"
           >
+             <li>
+              <Link to={"/feed"}>Home</Link>
+            </li>
             <li>
               <Link className="justify-between" to={"/profile"}>
                 Profile

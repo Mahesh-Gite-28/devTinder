@@ -6,24 +6,43 @@ import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 
 const Login = () => {
-  const [emailID, setemailID] = useState("nami.navigator99@gmail.com");
-  const [password, setpassword] = useState("Nami@789");
+  const [emailID, setemailID] = useState("");
+  const [password, setpassword] = useState("");
+
+  // 🔹 Signup-only states
+  const [firstName, setfirstName] = useState("");
+  const [lastName, setlastName] = useState("");
+
+  const [isLogin, setisLogin] = useState(true);
   const [error, Seterror] = useState("");
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const onloginhandler = async () => {
+  const onSubmitHandler = async () => {
     try {
-      const res = await axios.post(
-        BASE_URL + "/login",
-        { emailID, password },
-        { withCredentials: true },
-      );
+      Seterror("");
 
-      dispatch(addUser(res.data));
+      if (isLogin) {
+        const res = await axios.post(
+          BASE_URL + "/login",
+          { emailID, password },
+          { withCredentials: true }
+        );
 
-      //navigate to feed page
-      navigate("/feed");
+        dispatch(addUser(res.data));
+        navigate("/profile");
+      } else {
+        // 🔹 SIGNUP API (backend tu baad me handle karega)
+        const res = await axios.post(
+          BASE_URL + "/signup",
+          { firstName, lastName, emailID, password },
+          { withCredentials: true }
+        );
+
+        dispatch(addUser(res.data));
+        navigate("/profile");
+      }
     } catch (error) {
       Seterror(error?.response?.data || "something went wrong");
     }
@@ -34,11 +53,43 @@ const Login = () => {
       <div className="card w-[380px] bg-base-200 shadow-xl p-6">
         <h2 className="text-3xl font-bold text-center mb-6">
           <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-            Welcome Back
+            {isLogin ? "Welcome Back" : "Create Account"}
           </span>{" "}
           👋
         </h2>
 
+        {/* 🔹 SIGNUP EXTRA FIELDS */}
+        {!isLogin && (
+          <>
+            <div className="form-control mb-4">
+              <label className="label">
+                <span className="label-text text-sm">First Name</span>
+              </label>
+              <input
+                type="text"
+                placeholder="John"
+                className="input input-bordered bg-base-300"
+                value={firstName}
+                onChange={(e) => setfirstName(e.target.value)}
+              />
+            </div>
+
+            <div className="form-control mb-4">
+              <label className="label">
+                <span className="label-text text-sm">Last Name</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Doe"
+                className="input input-bordered bg-base-300"
+                value={lastName}
+                onChange={(e) => setlastName(e.target.value)}
+              />
+            </div>
+          </>
+        )}
+
+        {/* 🔹 EMAIL */}
         <div className="form-control mb-4">
           <label className="label">
             <span className="label-text text-sm">Email</span>
@@ -52,6 +103,7 @@ const Login = () => {
           />
         </div>
 
+        {/* 🔹 PASSWORD */}
         <div className="form-control mb-2">
           <label className="label">
             <span className="label-text text-sm">Password</span>
@@ -64,13 +116,29 @@ const Login = () => {
             onChange={(e) => setpassword(e.target.value)}
           />
         </div>
+
         <p className="text-red-500">{error}</p>
+
         <button
           className="btn btn-primary w-full mt-5 my-2"
-          onClick={onloginhandler}
+          onClick={onSubmitHandler}
         >
-          Login
+          {isLogin ? "Login" : "Signup"}
         </button>
+
+        {/* 🔹 TOGGLE LINK */}
+        <p className="text-center text-sm mt-3">
+          {isLogin ? "New here?" : "Already have an account?"}{" "}
+          <span
+            className="text-indigo-400 cursor-pointer hover:underline"
+            onClick={() => {
+              setisLogin(!isLogin);
+              Seterror("");
+            }}
+          >
+            {isLogin ? "Create an account" : "Login instead"}
+          </span>
+        </p>
       </div>
     </div>
   );

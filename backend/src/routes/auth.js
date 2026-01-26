@@ -9,20 +9,30 @@ authRouter.post("/signup", async (req, res) => {
   try {
     validateSignUpData(req);
 
-    // create document instance
     const user = new User(req.body);
 
-    // hash password using schema method
+  
     user.password = await user.gethash();
 
-    // save to DB
+  
     await user.save();
 
-    res.status(201).send("data saved successfully");
+    const token = await user.getjwt();
+
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      sameSite: "lax",
+    });
+
+    res.status(201).send(user);
+    
   } catch (err) {
     res.status(400).send("Error Msg: " + err.message);
   }
 });
+
 
 authRouter.post("/login", async (req, res) => {
   try {
