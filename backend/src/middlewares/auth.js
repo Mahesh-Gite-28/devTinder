@@ -11,7 +11,7 @@ const userauth = async (req, res, next) => {
     }
 
     // 2. Verify token
-    const decoded = jwt.verify(token, "Devtinder$790");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const { _id } = decoded;
 

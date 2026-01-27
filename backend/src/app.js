@@ -6,6 +6,7 @@ const cookieParser=require("cookie-parser");
 
 const {connectDB}=require("./config/database");
 
+require("dotenv").config();
 
 app=express();
 
@@ -34,8 +35,8 @@ app.use("/",userRouter);
 
 connectDB().then(()=>{
     console.log("Database connection estabilished....");
-    app.listen(7777,()=>{
-    console.log("server is listening on port 7777.......");
+    app.listen(process.env.PORT,()=>{
+    console.log("server is listening on port "+process.env.PORT+"........");
 })
 }).catch((err)=>{
     console.error("Database cannot be connected");

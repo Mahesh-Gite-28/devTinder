@@ -84,7 +84,7 @@ const userSchema = new mongoose.Schema(
 userSchema.methods.getjwt=async function(){
 
   const user=this;
-  const token=await jwt.sign({_id:user._id},"Devtinder$790",{expiresIn:JWT_TOKEN_EXPIRESIN});
+  const token=await jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:JWT_TOKEN_EXPIRESIN});
   
   return token;
 }
