@@ -23,7 +23,7 @@ const Layout = () => {
       dispatch(addUser(user.data));
     } 
     catch (err) {
-      console.log(err);
+      console.log(err)
     }
   };
 

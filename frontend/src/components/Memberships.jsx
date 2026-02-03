@@ -5,7 +5,14 @@ import toast from "react-hot-toast";
 
 const handleBuyClick = async (planType) => {
   try {
-    throw new Error;
+    const order = await axios.post(
+      BASE_URL + "/payment/create-checkout-session",
+      { planType },
+      { withCredentials: true },
+    );
+    
+    window.location.href = order.data.url;
+    
   } catch (err) {
     toast.error(err.message || "Something went wrong");
   }

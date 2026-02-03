@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 express=require("express");
 
 const cors = require("cors");
@@ -6,15 +8,22 @@ const cookieParser=require("cookie-parser");
 
 const {connectDB}=require("./config/database");
 
-require("dotenv").config();
+const paymentWebhookHandler = require("./routes/paymentWebhookHandler");
 
-app=express();
+app=express();//server
 
 app.use(
   cors({
-    origin: "http://localhost:5173",//frontend link 
+    origin: process.env.FRONTEND_URL,//frontend link 
     credentials: true,
   })
+);
+
+
+app.post(
+    "/payment/webhook",
+    express.raw({ type: "application/json" }),
+    paymentWebhookHandler
 );
 
 app.use(cookieParser());//helps to read the cookie
@@ -26,12 +35,14 @@ const authRouter=require("./routes/auth");
 const profileRouter=require("./routes/profile");
 const requestRouter=require("./routes/request");
 const userRouter=require("./routes/user");
+const paymentRouter = require("./routes/payment");
 
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouter);
 app.use("/",userRouter);
+app.use("/",paymentRouter);
 
 connectDB().then(()=>{
     console.log("Database connection estabilished....");
