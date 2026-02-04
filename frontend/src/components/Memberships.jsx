@@ -14,7 +14,7 @@ const handleBuyClick = async (planType) => {
     window.location.href = order.data.url;
     
   } catch (err) {
-    toast.error(err.message || "Something went wrong");
+    toast.error("Something went wrong");
   }
 };
 

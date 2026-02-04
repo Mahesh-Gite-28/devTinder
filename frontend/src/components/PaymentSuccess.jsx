@@ -5,34 +5,45 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
-      <div className="card bg-base-100 shadow-xl max-w-md w-full text-center">
-        <div className="card-body">
-          <CheckCircle className="w-16 h-16 text-success mx-auto" />
-
-          <h2 className="text-2xl font-bold mt-4">Payment Successful 🎉</h2>
-
-          <p className="text-gray-500 mt-2">
-            Thank you for upgrading your DevTinder membership.
-          </p>
-
-          <div className="alert alert-info mt-4 text-sm">
-            Your membership will be activated within a few seconds. Please don’t
-            refresh the page.
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-base-200 to-green-100 px-4">
+      
+      <div className="bg-base-100 rounded-3xl shadow-2xl max-w-md w-full text-center p-8 transition-all duration-300 hover:scale-[1.02]">
+        
+        {/* Success Icon */}
+        <div className="flex justify-center">
+          <div className="bg-green-100 p-4 rounded-full animate-bounce">
+            <CheckCircle className="w-14 h-14 text-green-600" />
           </div>
-
-          <button
-            className="btn btn-primary mt-6"
-            onClick={() => navigate("/profile")}
-          >
-            Go to Profile
-          </button>
-
-          <p className="text-xs text-gray-400 mt-4">
-            If your membership does not activate within 2 minutes, please
-            contact support.
-          </p>
         </div>
+
+        {/* Heading */}
+        <h2 className="text-3xl font-bold mt-6 text-green-700">
+          Payment Successful 🎉
+        </h2>
+
+        {/* Description */}
+        <p className="text-gray-500 mt-3">
+          Thank you for upgrading your <span className="font-semibold text-primary">DevTinder</span> membership.
+        </p>
+
+        {/* Info Box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mt-5 text-sm text-blue-700">
+          🚀 Your membership will be activated within a few seconds.  
+          Please don’t refresh the page.
+        </div>
+
+        {/* Button */}
+        <button
+          className="btn btn-primary w-full mt-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+          onClick={() => navigate("/profile")}
+        >
+          Go to Profile
+        </button>
+
+        {/* Footer Note */}
+        <p className="text-xs text-gray-400 mt-5">
+          If your membership does not activate within 2 minutes, please contact support.
+        </p>
       </div>
     </div>
   );
