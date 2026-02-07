@@ -31,6 +31,7 @@ function App() {
           <Route path="payment-success" element={<PaymentSuccess />} />
           <Route path="payment-cancel" element={<PaymentFailed />} />
           <Route path="chat/:targetUserid" element={<Chat />} />
+          <Route path="error" element={<Error />} />
 
           <Route path="*" element={<Error />} />
         </Route>

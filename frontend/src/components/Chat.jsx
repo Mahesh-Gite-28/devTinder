@@ -4,6 +4,7 @@ import { createSocketConnection } from "../utils/socket";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
+import { Navigate } from "react-router-dom";
 
 const Chat = () => {
   const user = useSelector((store) => store.user);
@@ -12,18 +13,19 @@ const Chat = () => {
 
   const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState("");
+  const [redirect, setRedirect] = useState(false);
   const socketRef = useRef(null);
 
   // ✅ 1️⃣ Load old messages from DB when chat opens
+
   useEffect(() => {
     if (!userId || !targetUserid) return;
 
     const fetchMessages = async () => {
       try {
-        const res = await axios.get(
-          `${BASE_URL}/chat/${targetUserid}`,
-          { withCredentials: true }
-        );
+        const res = await axios.get(`${BASE_URL}/chat/${targetUserid}`, {
+          withCredentials: true,
+        });
 
         const formattedMessages = res.data.map((msg) => ({
           senderId: msg.senderId,
@@ -33,6 +35,7 @@ const Chat = () => {
         setMessages(formattedMessages);
       } catch (err) {
         console.error("Fetch chat error:", err.message);
+        setRedirect(true);
       }
     };
 
@@ -40,6 +43,7 @@ const Chat = () => {
   }, [userId, targetUserid]);
 
   // ✅ 2️⃣ Setup socket connection
+
   useEffect(() => {
     if (!userId || !targetUserid) return;
 
@@ -68,10 +72,13 @@ const Chat = () => {
     setNewMsg("");
   };
 
+  if (redirect) {
+    return <Navigate to="/error" replace />;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
       <div className="w-full max-w-xl bg-neutral-800 rounded-xl p-4 flex flex-col h-[80vh]">
-
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-3">
           {messages.map((msg, index) => (
@@ -96,10 +103,7 @@ const Chat = () => {
             className="flex-1 p-2 rounded bg-neutral-700"
             placeholder="Type message..."
           />
-          <button
-            onClick={sendMessage}
-            className="bg-blue-600 px-4 rounded"
-          >
+          <button onClick={sendMessage} className="bg-blue-600 px-4 rounded">
             Send
           </button>
         </div>

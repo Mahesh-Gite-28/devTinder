@@ -14,7 +14,6 @@ const initiallizeSocket = (server) => {
   io.use(socketAuth);
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.user._id);
 
     socket.on("joinChat", ({ targetUserid }) => {
       const userId = socket.user._id; // 🔥 NEVER trust frontend
@@ -23,7 +22,6 @@ const initiallizeSocket = (server) => {
 
       socket.join(roomId);
 
-      console.log(socket.user.firstName + " joined room - " + roomId);
     });
 
     socket.on("sendMessage", async ({ targetUserid, newMsg }) => {
