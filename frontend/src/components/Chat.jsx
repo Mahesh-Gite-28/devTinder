@@ -7,7 +7,6 @@ const Chat = () => {
   const user = useSelector((store) => store.user);
 
   const userId = user?._id;
-  const firstName = user?.firstName;
   const { targetUserid } = useParams();
 
   const [messages, setMessages] = useState([]);
@@ -18,14 +17,15 @@ const Chat = () => {
   useEffect(() => {
     if (!userId) return;
 
+    // 🔥 Create socket connection
     socketRef.current = createSocketConnection();
 
+    // 🔥 Join room (ONLY targetUserId send)
     socketRef.current.emit("joinChat", {
-      firstName,
-      userId,
       targetUserid,
     });
 
+    // 🔥 Listen for messages
     socketRef.current.on("receiveMessage", (data) => {
       setMessages((prev) => [...prev, data]);
     });
@@ -38,13 +38,13 @@ const Chat = () => {
   const sendMessage = () => {
     if (!newMsg.trim()) return;
 
+    // 🔥 Send message (NO userId here)
     socketRef.current.emit("sendMessage", {
-      userId,
       targetUserid,
       newMsg,
     });
 
-    // instantly show own message
+    // 🔥 Instantly show own message
     setMessages((prev) => [
       ...prev,
       { senderId: userId, message: newMsg },

@@ -14,7 +14,7 @@ const initiallizeSocket = require("./utils/socket");
 
 const http = require("http");
 
-app = express(); //server
+app = express(); 
 
 app.use(
   cors({

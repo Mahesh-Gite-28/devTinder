@@ -5,6 +5,7 @@ const authRouter = express.Router();
 const { validateSignUpData } = require("../utils/validation");
 const User = require("../Models/User");
 
+
 authRouter.post("/signup", async (req, res) => {
   try {
     validateSignUpData(req);
@@ -24,9 +25,7 @@ authRouter.post("/signup", async (req, res) => {
     });
 
     res.status(201).send(user);
-
   } catch (err) {
-
     if (err.code === 11000) {
       return res.status(400).json({
         errors: "This email is already registered",
@@ -44,7 +43,6 @@ authRouter.post("/signup", async (req, res) => {
     });
   }
 });
-
 
 authRouter.post("/login", async (req, res) => {
   try {
@@ -70,21 +68,18 @@ authRouter.post("/login", async (req, res) => {
 
     res.cookie("token", token, {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      httpOnly: true,
+      httpOnly: true, //why did i do it
       sameSite: "lax",
     });
 
     res.status(200).send(user);
-
   } catch (err) {
-
     // 🔥 CLEAN ERROR HANDLING (NO LOGIC CHANGE)
     res.status(500).json({
       errors: "Login failed. Please try again.",
     });
   }
 });
-
 
 authRouter.post("/logout", (req, res) => {
   res.cookie("token", null, {

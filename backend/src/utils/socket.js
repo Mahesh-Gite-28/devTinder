@@ -1,24 +1,36 @@
 const socket = require("socket.io");
+const socketAuth = require("../middlewares/socketAuth");
 
 const initiallizeSocket = (server) => {
 
   const io = socket(server, {
-    cors: {
-      origin: process.env.FRONTEND_URL,
-    },
-  });
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,   // 🔥 VERY IMPORTANT
+  },
+});
+
+  // 🔐 Apply Authentication Middleware
+  io.use(socketAuth);
 
   io.on("connection", (socket) => {
 
-    socket.on("joinChat", ({ firstName, userId, targetUserid }) => {
+    console.log("User connected:", socket.user._id);
+
+    socket.on("joinChat", ({ targetUserid }) => {
+
+      const userId = socket.user._id;  // 🔥 NEVER trust frontend
 
       const roomId = [userId, targetUserid].sort().join("_");
+
       socket.join(roomId);
 
-      console.log(firstName + " joined room - " + roomId);
+      console.log(socket.user.firstName + " joined room - " + roomId);
     });
 
-    socket.on("sendMessage", ({ userId, targetUserid, newMsg }) => {
+    socket.on("sendMessage", ({ targetUserid, newMsg }) => {
+
+      const userId = socket.user._id;
 
       const roomId = [userId, targetUserid].sort().join("_");
 
@@ -26,7 +38,6 @@ const initiallizeSocket = (server) => {
         senderId: userId,
         message: newMsg,
       });
-
     });
 
   });
