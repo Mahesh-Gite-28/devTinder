@@ -7,7 +7,9 @@ const ConnectionRequest = require("../Models/connectionRequest");
 
 const User = require("../Models/User");
 
-const USER_SAFE_DATA = "firstName lastName photoUrl age gender about skills";
+const USER_SAFE_DATA =
+  "firstName lastName photoUrl age gender about skills membershipType membershipExpiry";
+
 
 userRouter.get("/user/requests/recieved", userauth, async (req, res) => {
   try {
@@ -30,6 +32,7 @@ userRouter.get("/user/requests/recieved", userauth, async (req, res) => {
 
 userRouter.get("/user/connections", userauth, async (req, res) => {
   try {
+
     const loggedInUser = req.user;
 
     const connections = await ConnectionRequest.find({
@@ -46,6 +49,7 @@ userRouter.get("/user/connections", userauth, async (req, res) => {
     })
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
+
 
     const data = connections.map((row) => {
       if (row.fromUserId._id.toString() == loggedInUser._id.toString()) {
@@ -69,6 +73,7 @@ userRouter.get("/feed", userauth, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
     limit = limit > 50 ? 50 : limit;
+
     const skip = (page - 1) * limit;
 
     // 1️⃣ Get all connection records of logged-in user
@@ -87,23 +92,65 @@ userRouter.get("/feed", userauth, async (req, res) => {
       return conn.fromUserId;
     });
 
-    // 3️⃣ Final feed query
-    const feed = await User.find({
-      $and: [
-        { _id: { $nin: hideUsersFromFeed } },   // exclude connected users
-        { _id: { $ne: loggedInUserId } }        // exclude self
-      ]
-    })
-      .select(USER_SAFE_DATA)
-      .skip(skip)
-      .limit(limit);
+    // 3️⃣ Aggregate query with priority logic
+    const feed = await User.aggregate([
+      {
+        $match: {
+          _id: {
+            $nin: [...hideUsersFromFeed, loggedInUserId]
+          }
+        }
+      },
+
+      // 🥇 Add priority field
+      {
+        $addFields: {
+          priority: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$membershipType", "Gold"] }, then: 1 },
+                { case: { $eq: ["$membershipType", "Silver"] }, then: 2 }
+              ],
+              default: 3
+            }
+          }
+        }
+      },
+
+      // 🔥 Sort by priority then newest users
+      {
+        $sort: {
+          priority: 1,
+          createdAt: -1
+        }
+      },
+
+      { $skip: skip },
+      { $limit: limit },
+
+      // Send only safe fields
+      {
+        $project: {
+          firstName: 1,
+          lastName: 1,
+          photoUrl: 1,
+          age: 1,
+          gender: 1,
+          about: 1,
+          skills: 1,
+          membershipType: 1
+        }
+      }
+    ]);
 
     res.status(200).json(feed);
+
   } catch (err) {
     console.error("FEED ERROR:", err);
     res.status(400).send("Error: " + err.message);
   }
 });
+
 
 
 module.exports = userRouter;

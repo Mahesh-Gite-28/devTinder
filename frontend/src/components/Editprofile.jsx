@@ -15,6 +15,7 @@ const EditProfile = ({ user }) => {
     photoUrl: userPhoto,
     skills: userSkills,
     gender: userGender,
+    membershipType
   } = user;
 
   const [firstName, setFirstName] = useState(fName || "");
@@ -247,6 +248,7 @@ const EditProfile = ({ user }) => {
               photoUrl,
               gender,
               skills,
+              membershipType
             }}
           />
         </div>

@@ -1,8 +1,10 @@
 const Payment = require("../Models/payment");
 const stripe = require("../config/stripe");
 const { MEMBERSHIP_PLANS } = require("../utils/constants");
+const User = require("../Models/User");
 
 const paymentWebHookHandler = async (req, res) => {
+  console.log("web hook hit...");
 
   const sig = req.headers["stripe-signature"];
 
@@ -40,19 +42,29 @@ const paymentWebHookHandler = async (req, res) => {
   expiryDate.setMonth(expiryDate.getMonth() + durationInMonths);
 
   const updated = await Payment.findOneAndUpdate(
-  {
-    orderId: session.id,
-    status: { $ne: "completed" },
-  },
-  {
-    $set: {
-      paymentId: session.payment_intent,
-      status: "completed",
-      "notes.expiryDate": expiryDate,
+    {
+      orderId: session.id,
+      status: { $ne: "completed" },
     },
-  },
-  { new: true }//updated
-);
+    {
+      $set: {
+        paymentId: session.payment_intent,
+        status: "completed",
+        "notes.expiryDate": expiryDate,
+      },
+    },
+    { new: true }, //updated
+  );
+
+  if (updated) {
+    const user = await User.findById(updated.userId);
+
+    if (user) {
+      user.membershipType = planType;
+      user.membershipExpiry = expiryDate;
+      await user.save();
+    }
+  }
 
   res.json({ received: true });
 };

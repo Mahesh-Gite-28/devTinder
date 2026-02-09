@@ -13,11 +13,36 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState("");
   const [redirect, setRedirect] = useState(false);
-  const [isOnline, setIsOnline] = useState(false); 
+  const [isOnline, setIsOnline] = useState(false);
+  const [targetUser, setTargetUser] = useState(null);
 
   const socketRef = useRef(null);
   const bottomRef = useRef(null);
 
+  // =========================
+  // 🔹 Fetch Target User Info
+  // =========================
+  useEffect(() => {
+    if (!targetUserid) return;
+
+    const fetchTargetUser = async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/profile/targetUser/${targetUserid}`,
+          { withCredentials: true },
+        );
+        setTargetUser(res.data);
+      } catch (err) {
+        console.error("Error fetching target user:", err);
+      }
+    };
+
+    fetchTargetUser();
+  }, [targetUserid]);
+
+  // =========================
+  // 🔹 Load Old Messages
+  // =========================
   useEffect(() => {
     if (!userId || !targetUserid) return;
 
@@ -43,63 +68,71 @@ const Chat = () => {
     fetchMessages();
   }, [userId, targetUserid]);
 
-
+  // =========================
+  // 🔌 Socket Setup
+  // =========================
   useEffect(() => {
     if (!userId || !targetUserid) return;
 
-    socketRef.current = createSocketConnection();
+    const socket = createSocketConnection();
+    socketRef.current = socket;
 
-    
-    socketRef.current.emit("joinChat", { targetUserid });
+    socket.emit("joinChat", { targetUserid });
+    socket.emit("checkOnlineStatus", { targetUserid });
 
-   
-    socketRef.current.emit("checkOnlineStatus", { targetUserid });
-
- 
-    socketRef.current.on("onlineStatus", (data) => {
+    socket.on("onlineStatus", (data) => {
       setIsOnline(data.online);
     });
 
-   
-    socketRef.current.on("userStatusChanged", (data) => {
+    socket.on("userStatusChanged", (data) => {
       if (data.userId === targetUserid) {
         setIsOnline(data.online);
       }
     });
 
-   
-    socketRef.current.on("receiveMessage", (data) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          ...data,
-          time: new Date(),
-        },
-      ]);
+    socket.on("receiveMessage", (data) => {
+      setMessages((prev) => {
+        // prevent duplicate own message
+        if (data.senderId?.toString() === userId?.toString()) {
+          return prev;
+        }
+
+        return [
+          ...prev,
+          {
+            ...data,
+            time: new Date(),
+          },
+        ];
+      });
     });
 
     return () => {
-      socketRef.current?.disconnect();
+      socket.disconnect();
     };
   }, [userId, targetUserid]);
 
- 
+  // =========================
+  // 🔄 Auto Scroll
+  // =========================
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-
+  // =========================
+  // 📤 Send Message
+  // =========================
   const sendMessage = () => {
     if (!newMsg.trim()) return;
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        senderId: userId,
-        message: newMsg,
-        time: new Date(),
-      },
-    ]);
+    const messageObj = {
+      senderId: userId,
+      message: newMsg,
+      time: new Date(),
+    };
+
+    // optimistic UI update
+    setMessages((prev) => [...prev, messageObj]);
 
     socketRef.current.emit("sendMessage", {
       targetUserid,
@@ -122,33 +155,44 @@ const Chat = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-neutral-900 to-black text-white">
       <div className="w-full max-w-2xl bg-neutral-900 rounded-2xl shadow-2xl flex flex-col h-[85vh]">
-
         {/* 🔥 Chat Header */}
         <div className="p-4 border-b border-neutral-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Chat</h2>
+          <div className="flex items-center gap-3">
+            {targetUser && (
+              <img
+                src={targetUser.photoUrl}
+                alt="profile"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+            )}
 
-          {/* ✅ Dynamic Online Status */}
-          <span
-            className={`text-sm ${
-              isOnline ? "text-green-400" : "text-red-400"
-            }`}
-          >
-            {isOnline ? "Online" : "Offline"}
-          </span>
+            <div>
+              <h2 className="text-lg font-semibold">
+                {targetUser
+                  ? `${targetUser.firstName} ${targetUser.lastName}`
+                  : "Chat"}
+              </h2>
+
+              <span
+                className={`text-xs ${
+                  isOnline ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                {isOnline ? "Online" : "Offline"}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* 🔥 Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, index) => {
-            const isOwn =
-              msg.senderId?.toString() === userId?.toString();
+            const isOwn = msg.senderId?.toString() === userId?.toString();
 
             return (
               <div
                 key={index}
-                className={`flex ${
-                  isOwn ? "justify-end" : "justify-start"
-                }`}
+                className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
               >
                 <div
                   className={`px-4 py-2 rounded-2xl max-w-xs break-words ${
@@ -184,7 +228,12 @@ const Chat = () => {
           />
           <button
             onClick={sendMessage}
-            className="bg-blue-600 hover:bg-blue-700 px-6 rounded-full transition"
+            disabled={!newMsg.trim()}
+            className={`px-6 rounded-full transition ${
+              newMsg.trim()
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-gray-600 cursor-not-allowed"
+            }`}
           >
             Send
           </button>

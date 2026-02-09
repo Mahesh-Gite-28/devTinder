@@ -3,83 +3,94 @@ const stripe = require("../config/stripe");
 const { MEMBERSHIP_PLANS } = require("../utils/constants");
 const Payment = require("../Models/payment");
 const userauth = require("../middlewares/auth");
+const User = require("../Models/User");
 
 const paymentRouter = express.Router();
 
 paymentRouter.post(
-    "/payment/create-checkout-session",
-    userauth, 
-    async (req, res) => {
-        try {
-            const planType = req.body?.planType;
-            const plan = MEMBERSHIP_PLANS[planType];
+  "/payment/create-checkout-session",
+  userauth,
+  async (req, res) => {
+    try {
+        
+      const user = await User.findById(req.user._id);
 
-            if (!plan) {
-                return res.status(400).json({
-                    message: "Invalid membership plan"
-                });
-            }
-
-            const session = await stripe.checkout.sessions.create({//creating order
-                mode: "payment",
-                payment_method_types: ["card"],
-                line_items: [
-                    {
-                        price_data: {
-                            currency: "inr",
-                            product_data: {
-                                name: plan.name, 
-                                description: plan.description 
-                            },
-                            unit_amount: plan.price * 100
-                        },
-                        quantity: 1
-                    }
-                ],
-                success_url: `${process.env.FRONTEND_URL}/payment-success`,
-                cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
-                metadata: {
-                    userId: req.user._id.toString(), 
-                    membership_type: planType,           
-                    durationInDays: plan.period.toString()
-                }
-            });
+      console.log(user);
 
 
-            const payment = new Payment({
-                userId: req.user._id,
-                orderId: session.id,
-                status: session.status,
-                amount: session.amount_total / 100,
-                currency: session.currency,
-                receipt: session.payment_intent,
-                notes: {
-                    firstName: req.user.firstName,
-                    lastName: req.user.lastName,
-                    emailId: req.user.emailId,
-                    membership_type: {
-                        ...plan//object spread
-                    }
-                }
-            })
+      if (user.membershipExpiry && user.membershipExpiry > new Date()) {
+        return res.status(400).json({
+          message: "You already have an active membership",
+        });
+      }
 
-            const savePayment = await payment.save();
+      const planType = req.body?.planType;
+      const plan = MEMBERSHIP_PLANS[planType];
 
-            return res.status(200).json({
-                url: session.url,
-                savePayment: savePayment
-            });
+      if (!plan) {
+        return res.status(400).json({
+          message: "Invalid membership plan",
+        });
+      }
 
-        } catch (error) {
-            console.error("Stripe Checkout Error:", error);
+      const session = await stripe.checkout.sessions.create({
+        //creating order
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "inr",
+              product_data: {
+                name: plan.name,
+                description: plan.description,
+              },
+              unit_amount: plan.price * 100,
+            },
+            quantity: 1,
+          },
+        ],
+        success_url: `${process.env.FRONTEND_URL}/payment-success`,
+        cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
+        metadata: {
+          userId: req.user._id.toString(),
+          membership_type: planType,
+          durationInDays: plan.period.toString(),
+        },
+      });
 
-            return res.status(500).json({
-                message: "Failed to create checkout session",
-                error: error.message
-            });
-        }
+      const payment = new Payment({
+        userId: req.user._id,
+        orderId: session.id,
+        status: session.status,
+        amount: session.amount_total / 100,
+        currency: session.currency,
+        receipt: session.payment_intent,
+        notes: {
+          firstName: req.user.firstName,
+          lastName: req.user.lastName,
+          emailId: req.user.emailId,
+          membership_type: {
+            ...plan, //object spread
+          },
+        },
+      });
+
+      const savePayment = await payment.save();
+
+      return res.status(200).json({
+        url: session.url,
+        savePayment: savePayment,
+      });
+    } catch (error) {
+      console.error("Stripe Checkout Error:", error);
+
+      return res.status(500).json({
+        message: "Failed to create checkout session",
+        error: error.message,
+      });
     }
+  },
 );
-
 
 module.exports = paymentRouter;

@@ -5,7 +5,6 @@ const authRouter = express.Router();
 const { validateSignUpData } = require("../utils/validation");
 const User = require("../Models/User");
 
-
 authRouter.post("/signup", async (req, res) => {
   try {
     validateSignUpData(req);
@@ -64,17 +63,23 @@ authRouter.post("/login", async (req, res) => {
       });
     }
 
+    // 🔥 AUTO DOWNGRADE IF MEMBERSHIP EXPIRED
+    if (user.membershipExpiry && user.membershipExpiry < new Date()) {
+      user.membershipType = "free";
+      user.membershipExpiry = null;
+      await user.save();
+    }
+
     const token = await user.getjwt();
 
     res.cookie("token", token, {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      httpOnly: true, //why did i do it
+      httpOnly: true,
       sameSite: "lax",
     });
 
     res.status(200).send(user);
   } catch (err) {
-    // 🔥 CLEAN ERROR HANDLING (NO LOGIC CHANGE)
     res.status(500).json({
       errors: "Login failed. Please try again.",
     });

@@ -1,5 +1,7 @@
 const express = require("express");
 
+const User = require("../Models/User");
+
 const profileRouter = express.Router();
 
 const userauth = require("../middlewares/auth");
@@ -91,6 +93,25 @@ profileRouter.patch("/profile/password", userauth, async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
+profileRouter.get("/profile/targetUser/:id", userauth, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId)
+      .select("firstName lastName photoUrl");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(user);
+
+  } catch (err) {
+    res.status(400).json({ error: "Something went wrong" });
+  }
+});
+
 
 
 module.exports = profileRouter;

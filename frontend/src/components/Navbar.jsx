@@ -1,15 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
-import { useDispatch } from "react-redux";
 import { removeUser } from "../utils/userSlice";
 import { removefeed } from "../utils/feedSlice";
 import { removeconnections } from "../utils/connectionSlice";
 import { removeRequests } from "../utils/requestSlice";
 import toast from "react-hot-toast";
 
-import { Home, User, Users, Inbox, LogOut, Crown} from "lucide-react";
+import { Home, User, Users, Inbox, LogOut, Crown } from "lucide-react";
 
 const Navbar = () => {
   const user = useSelector((store) => store.user);
@@ -24,15 +23,16 @@ const Navbar = () => {
       dispatch(removeconnections());
       dispatch(removeRequests());
       toast.success("Logged out successfully");
-      return navigate("/login");
+      navigate("/login");
     } catch (err) {
-      console.error("Logout error:", err);  
+      console.error("Logout error:", err);
       toast.error("Logout failed");
     }
   };
 
   return (
     <div className="navbar bg-black border-b border-slate-800 px-6 fixed top-0 z-[1000]">
+      {/* Left Logo */}
       <div className="flex-1">
         <Link
           className="flex items-center gap-3 w-fit"
@@ -50,63 +50,77 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* Right - Profile (ONLY if user exists) */}
+      {/* Right Side */}
       {user && (
         <div className="flex items-center gap-4">
           <div className="dropdown dropdown-end">
             <div className="flex items-center gap-3">
-              <p className="text-sm font-medium whitespace-nowrap text-slate-400 hidden sm:block">
-                Welcome,{" "}
-                <span className="text-white font-semibold">
+
+              {/* Welcome Text + Badge */}
+              <p className="text-sm font-medium whitespace-nowrap text-slate-400 hidden sm:flex items-center gap-2">
+                Welcome,
+                <span className="text-white font-semibold flex items-center gap-2">
                   {user.firstName}
+
+                  {user.membershipType === "Gold" && (
+                    <Crown
+                      size={16}
+                      className="text-yellow-400 fill-yellow-400 drop-shadow-[0_0_6px_gold]"
+                    />
+                  )}
+
+                  {user.membershipType === "Silver" && (
+                    <Crown
+                      size={16}
+                      className="text-gray-300 fill-gray-300 drop-shadow-[0_0_6px_silver]"
+                    />
+                  )}
                 </span>
               </p>
 
+              {/* Avatar */}
               <div
                 tabIndex={0}
                 role="button"
                 className="btn btn-ghost btn-circle avatar hover:scale-105 transition-transform"
               >
-                <div className="w-10 rounded-full ring ring-emerald-400 ring-offset-black ring-offset-2">
+                <div
+                  className={`w-10 rounded-full ring ring-offset-black ring-offset-2 ${
+                    user.membershipType === "Gold"
+                      ? "ring-yellow-400"
+                      : user.membershipType === "Silver"
+                      ? "ring-gray-300"
+                      : "ring-emerald-400"
+                  }`}
+                >
                   <img alt="profile" src={user.photoUrl} />
                 </div>
               </div>
             </div>
 
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content mt-3 w-52 rounded-xl bg-slate-950 p-2 shadow-xl border border-slate-800"
-            >
+            {/* Dropdown */}
+            <ul className="menu menu-sm dropdown-content mt-3 w-52 rounded-xl bg-slate-950 p-2 shadow-xl border border-slate-800">
+
               <li>
-                <Link
-                  to={"/feed"}
-                  className="hover:bg-emerald-500 hover:text-black"
-                >
+                <Link to="/feed" className="hover:bg-emerald-500 hover:text-black">
                   <Home size={16} className="mr-2" />
                   Home
                 </Link>
               </li>
 
-              {/* Profile */}
               <li>
                 <Link
-                  className="justify-between hover:bg-emerald-500 hover:text-black"
-                  to={"/profile"}
+                  to="/profile"
+                  className="hover:bg-emerald-500 hover:text-black"
                 >
-                  <div className="flex items-center gap-2">
-                    <User size={16} />
-                    Profile
-                  </div>
-
-                  <span className="badge badge-outline border-emerald-400 text-emerald-400 badge-sm">
-                    New
-                  </span>
+                  <User size={16} className="mr-2" />
+                  Profile
                 </Link>
               </li>
 
               <li>
                 <Link
-                  to={"/connections"}
+                  to="/connections"
                   className="hover:bg-emerald-500 hover:text-black"
                 >
                   <Users size={16} className="mr-2" />
@@ -116,7 +130,7 @@ const Navbar = () => {
 
               <li>
                 <Link
-                  to={"/requests"}
+                  to="/requests"
                   className="hover:bg-emerald-500 hover:text-black"
                 >
                   <Inbox size={16} className="mr-2" />
@@ -126,7 +140,7 @@ const Navbar = () => {
 
               <li>
                 <Link
-                  to={"/memberships"}
+                  to="/memberships"
                   className="hover:bg-emerald-500 hover:text-black"
                 >
                   <Crown size={16} className="mr-2" />
@@ -139,12 +153,11 @@ const Navbar = () => {
                   className="text-rose-400 font-medium hover:bg-rose-500 hover:text-white"
                   onClick={handleLogout}
                 >
-                  <div className="flex items-center gap-2">
-                    <LogOut size={16} />
-                    Logout
-                  </div>
+                  <LogOut size={16} className="mr-2" />
+                  Logout
                 </button>
               </li>
+
             </ul>
           </div>
         </div>
