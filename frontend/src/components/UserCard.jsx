@@ -3,7 +3,7 @@ import { BASE_URL } from "../utils/constants";
 import { useDispatch } from "react-redux";
 import { removeonefeed } from "../utils/feedSlice";
 
-const UserCard = ({ data }) => {
+const UserCard = ({ data, onAction }) => {
   if (!data) return null;
 
   const {
@@ -27,7 +27,15 @@ const UserCard = ({ data }) => {
         {},
         { withCredentials: true },
       );
-      dispatch(removeonefeed(_id));
+
+      // 🔥 If Search page
+      if (onAction) {
+        onAction();
+      }
+      // 🔥 If Feed page
+      else {
+        dispatch(removeonefeed(_id));
+      }
     } catch (err) {
       console.log(err);
     }

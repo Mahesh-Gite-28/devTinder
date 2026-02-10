@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import AIChatbot from "./AIChatbot";
 
 const tags = [
   "Frontend Developer",
@@ -85,6 +86,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f0f14] via-[#15151f] to-[#0f0f14]">
       {/* Hero Section */}
+      <AIChatbot/>
       <div className="pt-24 pb-16 px-4 flex flex-col items-center justify-center gap-10">
         <motion.div
           className="max-w-3xl text-center"

@@ -7,10 +7,12 @@ import { removefeed } from "../utils/feedSlice";
 import { removeconnections } from "../utils/connectionSlice";
 import { removeRequests } from "../utils/requestSlice";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
-import { Home, User, Users, Inbox, LogOut, Crown } from "lucide-react";
+import { Home, User, Users, Inbox, LogOut, Crown, Search } from "lucide-react";
 
 const Navbar = () => {
+  const [searchText, setSearchText] = useState("");
   const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,6 +30,13 @@ const Navbar = () => {
       console.error("Logout error:", err);
       toast.error("Logout failed");
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchText.trim()) return;
+    navigate(`/search?query=${searchText}`);
+    setSearchText("");
   };
 
   return (
@@ -53,9 +62,23 @@ const Navbar = () => {
       {/* Right Side */}
       {user && (
         <div className="flex items-center gap-4">
+
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex items-center bg-slate-900 border border-slate-700 rounded-lg px-3 py-1"
+          >
+            <Search size={16} className="text-gray-400 mr-2" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="bg-transparent outline-none text-sm text-white placeholder-gray-500 w-40"
+            />
+          </form>
+          
           <div className="dropdown dropdown-end">
             <div className="flex items-center gap-3">
-
               {/* Welcome Text + Badge */}
               <p className="text-sm font-medium whitespace-nowrap text-slate-400 hidden sm:flex items-center gap-2">
                 Welcome,
@@ -89,8 +112,8 @@ const Navbar = () => {
                     user.membershipType === "Gold"
                       ? "ring-yellow-400"
                       : user.membershipType === "Silver"
-                      ? "ring-gray-300"
-                      : "ring-emerald-400"
+                        ? "ring-gray-300"
+                        : "ring-emerald-400"
                   }`}
                 >
                   <img alt="profile" src={user.photoUrl} />
@@ -100,9 +123,11 @@ const Navbar = () => {
 
             {/* Dropdown */}
             <ul className="menu menu-sm dropdown-content mt-3 w-52 rounded-xl bg-slate-950 p-2 shadow-xl border border-slate-800">
-
               <li>
-                <Link to="/feed" className="hover:bg-emerald-500 hover:text-black">
+                <Link
+                  to="/feed"
+                  className="hover:bg-emerald-500 hover:text-black"
+                >
                   <Home size={16} className="mr-2" />
                   Home
                 </Link>
@@ -157,7 +182,6 @@ const Navbar = () => {
                   Logout
                 </button>
               </li>
-
             </ul>
           </div>
         </div>

@@ -152,5 +152,56 @@ userRouter.get("/feed", userauth, async (req, res) => {
 });
 
 
+userRouter.get("/user/search", userauth, async (req, res) => {
+  try {
+    const loggedInUserId = req.user._id;
+    const { query } = req.query;
+
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ message: "Search query required" });
+    }
+
+    // 1️⃣ Get all connections of logged in user
+    const connectionRequests = await ConnectionRequest.find({
+      $or: [
+        { fromUserId: loggedInUserId },
+        { toUserId: loggedInUserId }
+      ]
+    }).select("fromUserId toUserId");
+
+    // 2️⃣ Build exclude list
+    const excludeUsers = connectionRequests.map((conn) => {
+      if (conn.fromUserId.toString() === loggedInUserId.toString()) {
+        return conn.toUserId;
+      }
+      return conn.fromUserId;
+    });
+
+    // 3️⃣ Prefix search
+    const users = await User.find({
+      $and: [
+        {
+          $or: [
+            { firstName: { $regex: "^" + query, $options: "i" } },
+            { lastName: { $regex: "^" + query, $options: "i" } }
+          ]
+        },
+        {
+          _id: { $nin: [...excludeUsers, loggedInUserId] }
+        }
+      ]
+    })
+      .select("firstName lastName photoUrl age gender about skills membershipType")
+      .limit(10);
+
+    res.status(200).json(users);
+
+  } catch (err) {
+    console.error("SEARCH ERROR:", err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
 
 module.exports = userRouter;
